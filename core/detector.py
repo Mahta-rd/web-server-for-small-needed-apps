@@ -188,7 +188,10 @@ def validate_and_normalize_date(date_str: str, calendar_type: str = None):
             # Validate Gregorian
             try:
                 from datetime import datetime
-                datetime.strptime(date_str, '%Y-%m-%d')
+                if '-' in date_str:
+                    datetime.strptime(date_str, '%Y-%m-%d')
+                elif '/' in date_str:
+                    datetime.strptime(date_str, '%Y/%m/%d')
                 return calendar_type
             except ValueError:
                 raise ValueError(f"Invalid Gregorian date: {date_str}")
