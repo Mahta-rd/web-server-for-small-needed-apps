@@ -6,7 +6,7 @@ import os
 BASE_DIR = os.path.dirname(__file__)
 IRAN_POSTAL_CODE_FILE = os.path.join(BASE_DIR, 'data', 'postal_code.xlsx')
 
-def _get_city_name(postal_code: str) -> str:
+def _get_city_name(postal_code: str) -> dict:
     """
     Get city and region name from first 5 digits of postal code number
 
@@ -62,5 +62,3 @@ def postal_filter(postal_code: str) -> dict:
         'city': name['city'],
         'region': name['region']
     }
-
-print(postal_filter("13456-78902"))

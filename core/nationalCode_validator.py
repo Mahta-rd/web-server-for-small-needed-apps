@@ -26,7 +26,7 @@ def _validate_nationalCode(national_code: str) -> bool:
         control_num = remain
     return control_num == int(national_code[len(national_code) - 1])
 
-def _get_city_name(national_code: str) -> str:
+def _get_city_name(national_code: str) -> dict:
     """
     Get city and town name from first 3 digits of national code number
 
