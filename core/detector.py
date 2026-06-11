@@ -25,7 +25,6 @@ def detect_calendar_type(date_str: str) -> str:
         ValueError: if date cannot be detected or has invalid format
     """
 
-    # Remove leading/trailing whitespace
     date_str = date_str.strip()
 
     if not date_str:
@@ -35,10 +34,8 @@ def detect_calendar_type(date_str: str) -> str:
     # Step 1: Detect based on format (separator)
     # ============================================================
     if '-' in date_str:
-        # Standard Gregorian format: YYYY-MM-DD
         return _detect_by_format(date_str, separator='-')
     elif '/' in date_str:
-        # Jalali or Hijri format: YYYY/MM/DD
         return _detect_by_format(date_str, separator='/')
     else:
         raise ValueError(f"Invalid date format. Use '/' or '-' separator. Input: {date_str}")
@@ -55,7 +52,6 @@ def _detect_by_format(date_str: str, separator: str) -> str:
     Returns:
         Detected calendar type
     """
-    # Parse date components
     parts = date_str.split(separator)
     if len(parts) != 3:
         raise ValueError(f"Invalid date format. Must be YYYY{separator}MM{separator}DD. Input: {date_str}")
@@ -67,7 +63,6 @@ def _detect_by_format(date_str: str, separator: str) -> str:
     except ValueError:
         raise ValueError(f"Year, month and day must be numbers. Input: {date_str}")
 
-    # Basic validation of month and day (before type detection)
     if month < 1 or month > 12:
         raise ValueError(f"Month must be between 1 and 12. Input: {month}")
     if day < 1 or day > 31:
@@ -97,8 +92,6 @@ def _detect_by_format(date_str: str, separator: str) -> str:
     if month == 2 and not(leap_year_g) and day > 28:
         gregorian = False
 
-    if 1342 < year < 1501:
-        hijri = _is_valid_hijri(year, month, day)
     else:
         if (month == 1 or month == 3 or month == 5) and day > 30:
             hijri = False
@@ -179,13 +172,11 @@ def validate_and_normalize_date(date_str: str, calendar_type: str = None):
     If not specified, detect first
     """
 
-    # If calendar type is specified, just validate
     if calendar_type:
         if calendar_type not in ['jalali', 'gregorian', 'hijri']:
             raise ValueError(f"Invalid calendar type: {calendar_type}")
 
         if calendar_type == 'gregorian':
-            # Validate Gregorian
             try:
                 from datetime import datetime
                 if '-' in date_str:
@@ -197,7 +188,6 @@ def validate_and_normalize_date(date_str: str, calendar_type: str = None):
                 raise ValueError(f"Invalid Gregorian date: {date_str}")
 
         elif calendar_type == 'jalali':
-            # Validate Jalali
             parts = date_str.split('/')
             if len(parts) != 3:
                 raise ValueError(f"Jalali date format must be YYYY/MM/DD")
@@ -207,7 +197,6 @@ def validate_and_normalize_date(date_str: str, calendar_type: str = None):
             return calendar_type
 
         elif calendar_type == 'hijri':
-            # Validate Hijri
             parts = date_str.split('/')
             if len(parts) != 3:
                 raise ValueError(f"Hijri date format must be YYYY/MM/DD")
@@ -216,53 +205,4 @@ def validate_and_normalize_date(date_str: str, calendar_type: str = None):
                 raise ValueError(f"Invalid Hijri date: {date_str}")
             return calendar_type
 
-    # If calendar type not specified, detect
     return detect_calendar_type(date_str)
-
-
-# ============================================================
-# Test section (run directly with python core/detector.py)
-# ============================================================
-
-if __name__ == "__main__":
-    # Sample test cases
-    test_cases = [
-        ("1402/10/11", "jalali"),  # Normal Jalali
-        ("1360/10/01", "jalali"),  # Jalali - priority to Jalali
-        ("2024-01-01", "gregorian"),  # Gregorian
-        ("1445/01/01", "hijri"),  # Hijri
-        ("1406/10/01", "hijri"),  # According to rule: >1405 -> Hijri
-        ("1405/10/01", "jalali"),  # 1405 -> priority to Jalali
-        ("1950/10/01", None),  # '/' format but Gregorian year - will error
-    ]
-
-    print("=" * 50)
-    print("Calendar Type Detection Tests")
-    print("=" * 50)
-
-    for date_str, expected in test_cases:
-        try:
-            result = detect_calendar_type(date_str)
-            status = "✓" if result == expected or expected is None else "✗"
-            print(f"{status} Input: {date_str:15} -> Detected: {result:10} (Expected: {expected})")
-        except ValueError as e:
-            print(f"✗ Input: {date_str:15} -> Error: {str(e)[:50]}...")
-
-    print("\n" + "=" * 50)
-    print("Ambiguous Cases Tests")
-    print("=" * 50)
-
-    # Ambiguous cases
-    ambiguous_cases = [
-        "1400/01/01",  # Year 1400 -> priority Jalali
-        "1404/12/29",  # Year 1404 -> Jalali
-        "1406/01/01",  # Year 1406 -> Hijri (by rule)
-        "1410/05/15",  # Year 1410 -> Hijri
-    ]
-
-    for date_str in ambiguous_cases:
-        try:
-            result = detect_calendar_type(date_str)
-            print(f"Input: {date_str:15} -> Detected: {result}")
-        except ValueError as e:
-            print(f"Input: {date_str:15} -> Error: {e}")

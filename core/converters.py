@@ -197,7 +197,7 @@ def _hijri_months_to_days(hy: int, hm: int, hd: int) -> float:
     """
 
     # Standard month lengths (non-leap year)
-    month_lengths = [30, 29, 30, 29, 30, 30, 30, 29, 30, 29, 29, 29]
+    month_lengths = [30, 29, 30, 29, 30, 29, 30, 29, 30, 29, 30, 29]
 
     # Check if it's a leap year (11 leap years in 30-year cycle)
     # Hijri leap years: years 2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29 of each 30-year cycle
@@ -310,7 +310,6 @@ def jalali_to_hijri_direct(jy: int, jm: int, jd: int) -> List[int]:
     Returns:
         List [hy, hm, hd] Hijri date (approximate)
     """
-    # First convert to Gregorian for accuracy
     gy, gm, gd = jalali_to_gregorian(jy, jm, jd)
     return gregorian_to_hijri(gy, gm, gd)
 
@@ -327,12 +326,10 @@ def hijri_to_jalali_direct(hy: int, hm: int, hd: int) -> List[int]:
     Returns:
         List [jy, jm, jd] Jalali date (approximate)
     """
-    # First convert to Gregorian for accuracy
     gy, gm, gd = hijri_to_gregorian(hy, hm, hd)
     return gregorian_to_jalali(gy, gm, gd)
 
 
-# Alias for simpler naming
 jalali_to_hijri = jalali_to_hijri_direct
 hijri_to_jalali = hijri_to_jalali_direct
 
@@ -414,14 +411,11 @@ def from_gregorian_to_all(gregorian_date: datetime_date) -> Dict[str, str]:
     gm = gregorian_date.month
     gd = gregorian_date.day
 
-    # Gregorian format
     gregorian_str = gregorian_date.isoformat()
 
-    # Convert to Jalali
     jy, jm, jd = gregorian_to_jalali(gy, gm, gd)
     jalali_str = f"{jy}/{jm}/{jd}"
 
-    # Convert to Hijri
     hy, hm, hd = gregorian_to_hijri(gy, gm, gd)
     hijri_str = f"{hy}/{hm}/{hd}"
 
@@ -459,67 +453,3 @@ def convert(date_str: str, calendar_type: str = None) -> Dict[str, Union[str, di
 
     return result
 
-
-# ============================================================
-# Test section
-# ============================================================
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-
-    print("=" * 70)
-    print("Testing Conversion Functions")
-    print("=" * 70)
-
-    # Test 1: Hijri to Gregorian
-    print("\n1. Testing Hijri to Gregorian:")
-    test_hijri = [(1445, 6, 19), (1402, 2, 24), (1446, 10, 1)]
-    for hy, hm, hd in test_hijri:
-        gy, gm, gd = hijri_to_gregorian(hy, hm, hd)
-        print(f"   Hijri {hy}/{hm}/{hd} -> Gregorian {gy}/{gm}/{gd}")
-
-    # Test 2: Gregorian to Hijri
-    print("\n2. Testing Gregorian to Hijri:")
-    test_gregorian = [(2024, 1, 1), (1981, 12, 22), (2026, 4, 20)]
-    for gy, gm, gd in test_gregorian:
-        hy, hm, hd = gregorian_to_hijri(gy, gm, gd)
-        print(f"   Gregorian {gy}/{gm}/{gd} -> Hijri {hy}/{hm}/{hd}")
-
-    # Test 3: Round-trip Hijri -> Gregorian -> Hijri
-    print("\n3. Testing Round-trip (Hijri -> Gregorian -> Hijri):")
-    for hy, hm, hd in test_hijri:
-        gy, gm, gd = hijri_to_gregorian(hy, hm, hd)
-        hy2, hm2, hd2 = gregorian_to_hijri(gy, gm, gd)
-        print(f"   Original: {hy}/{hm}/{hd} -> After round-trip: {hy2}/{hm2}/{hd2}")
-
-    # Test 4: Jalali to Hijri
-    print("\n4. Testing Jalali to Hijri:")
-    test_jalali = [(1402, 10, 11), (1360, 10, 1), (1400, 1, 1)]
-    for jy, jm, jd in test_jalali:
-        hy, hm, hd = jalali_to_hijri(jy, jm, jd)
-        print(f"   Jalali {jy}/{jm}/{jd} -> Hijri {hy}/{hm}/{hd}")
-
-    # Test 5: Main convert function
-    print("\n" + "=" * 70)
-    print("5. Testing Main Convert Function")
-    print("=" * 70)
-
-    test_dates = [
-        ("1402/10/11", None),
-        ("1360/10/01", None),
-        ("2024-01-01", None),
-        ("1445/06/19", None),
-    ]
-
-    for date_str, cal_type in test_dates:
-        print(f"\nInput: {date_str}")
-        try:
-            result = convert(date_str, cal_type)
-            print(f"  Detected as: {result['original_calendar_type']}")
-            print(f"  Gregorian: {result['gregorian']}")
-            print(f"  Jalali:    {result['jalali']}")
-            print(f"  Hijri:     {result['hijri']}")
-        except Exception as e:
-            print(f"  ERROR: {e}")
-
-    print("\n✓ All tests completed!")
