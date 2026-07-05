@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحه گزارش</title>
+    <link rel="stylesheet" href="css/report.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <h2 class="navbar-title">سیستم گزارش‌گیری</h2>
+            <ul class="navbar-menu">
+                <li><a href="company.html">ثبت شرکت</a></li>
+                <li><a href="#" onclick="changePassword(event)">تغییر رمز عبور</a></li>
+                <li><a href="#" onclick="logout(event)">خروج</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="report-form-container">
+            <h1>تهیه گزارش</h1>
+
+            <form id="reportForm" onsubmit="handleReportSubmit(event)">
+                <!-- Date Range Section -->
+                <div class="form-section">
+                    <h3>بازه زمانی</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fromMonth">از ماه</label>
+                            <select id="fromMonth" name="fromMonth" required>
+                                <option value="">انتخاب کنید</option>
+                                <option value="1">فروردین</option>
+                                <option value="2">اردیبهشت</option>
+                                <option value="3">خرداد</option>
+                                <option value="4">تیر</option>
+                                <option value="5">مرداد</option>
+                                <option value="6">شهریور</option>
+                                <option value="7">مهر</option>
+                                <option value="8">آبان</option>
+                                <option value="9">آذر</option>
+                                <option value="10">دی</option>
+                                <option value="11">بهمن</option>
+                                <option value="12">اسفند</option>
+                            </select>
+                            <span id="fromMonthError" class="error-message"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fromYear">از سال</label>
+                            <input
+                                type="number"
+                                id="fromYear"
+                                name="fromYear"
+                                placeholder="مثال: 1403"
+                                required
+                            >
+                            <span id="fromYearError" class="error-message"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="toMonth">تا ماه</label>
+                            <select id="toMonth" name="toMonth" required>
+                                <option value="">انتخاب کنید</option>
+                                <option value="1">فروردین</option>
+                                <option value="2">اردیبهشت</option>
+                                <option value="3">خرداد</option>
+                                <option value="4">تیر</option>
+                                <option value="5">مرداد</option>
+                                <option value="6">شهریور</option>
+                                <option value="7">مهر</option>
+                                <option value="8">آبان</option>
+                                <option value="9">آذر</option>
+                                <option value="10">دی</option>
+                                <option value="11">بهمن</option>
+                                <option value="12">اسفند</option>
+                            </select>
+                            <span id="toMonthError" class="error-message"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="toYear">تا سال</label>
+                            <input type="number"
+                                id="toYear"
+                                name="toYear"
+                                placeholder="مثال: 1403"
+                                required
+                            >
+                            <span id="toYearError" class="error-message"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personnel Number Section -->
+                <div class="form-section">
+                    <h3>شماره پرسنلی</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fromPersonnelNum">از شماره پرسنلی</label>
+                            <input
+                                type="number"
+                                id="fromPersonnelNum"
+                                name="fromPersonnelNum"
+                                placeholder="مثال: 100000"
+                                required
+                            >
+                            <span id="fromPersonnelNumError" class="error-message"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="toPersonnelNum">تا شماره پرسنلی</label>
+                            <input
+                                type="number"
+                                id="toPersonnelNum"
+                                name="toPersonnelNum"
+                                placeholder="مثال: 999999"
+                                required
+                            >
+                            <span id="toPersonnelNumError" class="error-message"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PND Section -->
+                <div class="form-section">
+                    <h3>PND</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fromPnd">از PND</label>
+                            <input
+                                type="number"
+                                id="fromPnd"
+                                name="fromPnd"
+                                placeholder="مثال: 100"
+                                required
+                            >
+                            <span id="fromPndError" class="error-message"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="toPnd">تا PND</label>
+                            <input
+                                type="number"
+                                id="toPnd"
+                                name="toPnd"
+                                placeholder="مثال: 999"
+                                required
+                            >
+                            <span id="toPndError" class="error-message"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Checkboxes Section -->
+                <div class="form-section">
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input
+                                type="checkbox"
+                                id="aggregation"
+                                name="aggregation"
+                            >
+                            <span>تجمیع</span>
+                        </label>
+
+                        <label class="checkbox-label">
+                            <input
+                                type="checkbox"
+                                id="difference"
+                                name="difference"
+                            >
+                            <span>اختلاف</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="form-section">
+                    <button type="submit" class="submit-btn">تهیه گزارش</button>
+                </div>
+
+                <div id="generalError" class="error-message general-error"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="changePasswordModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" onclick="closeChangePasswordModal()">&times;</span>
+            <h2>تغییر رمز عبور</h2>
+            <form id="changePasswordForm" onsubmit="handleChangePassword(event)">
+                <div class="form-group">
+                    <label for="currentPassword">رمز عبور فعلی</label>
+                    <input
+                        type="password"
+                        id="currentPassword"
+                        name="currentPassword"
+                        required
+                    >
+                    <span id="currentPasswordError" class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="newPassword">رمز عبور جدید</label>
+                    <input
+                        type="password"
+                        id="newPassword"
+                        name="newPassword"
+                        required
+                    >
+                    <span id="newPasswordError" class="error-message"></span>
+                    <div class="password-rules" id="passwordRules">
+                        <ul>
+                            <li id="ruleLength">حداقل ۸ کاراکتر</li>
+                            <li id="ruleUppercase">حداقل یک حرف بزرگ (A-Z)</li>
+                            <li id="ruleLowercase">حداقل یک حرف کوچک (a-z)</li>
+                            <li id="ruleNumber">حداقل یک عدد (0-9)</li>
+                            <li id="ruleSpecial">حداقل یک کاراکتر خاص (@$!%*?&)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">تایید رمز عبور جدید</label>
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        required
+                    >
+                    <span id="confirmPasswordError" class="error-message"></span>
+                </div>
+
+                <button type="submit" class="submit-btn">تغییر رمز عبور</button>
+                <div id="changePasswordGeneralError" class="error-message general-error"></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/report.js"></script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ثبت شرکت</title>
+    <link rel="stylesheet" href="css/company.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <h2 class="navbar-title">ثبت شرکت</h2>
+            <ul class="navbar-menu">
+                <li><a href="report.html">گزارش</a></li>
+                <li><a href="#" onclick="changePassword(event)">تغییر رمز عبور</a></li>
+                <li><a href="#" onclick="logout(event)">خروج</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="company-form-container">
+            <h1>ثبت شرکت جدید</h1>
+
+            <form id="companyForm" onsubmit="handleCompanySubmit(event)">
+                <!-- Company Name -->
+                <div class="form-section">
+                    <h3>اطلاعات شرکت</h3>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="companyName">نام شرکت</label>
+                            <input
+                                type="text"
+                                id="companyName"
+                                name="companyName"
+                                placeholder="نام شرکت را وارد کنید"
+                                required
+                            >
+                            <span id="companyNameError" class="error-message"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nationalCode">شناسه ملی</label>
+                            <input
+                                type="text"
+                                id="nationalCode"
+                                name="nationalCode"
+                                placeholder="مثال: 12563254806"
+                                required
+                                maxlength="11"
+                            >
+                            <span id="nationalCodeError" class="error-message"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="registrationNumber">شماره ثبت</label>
+                            <input
+                                type="text"
+                                id="registrationNumber"
+                                name="registrationNumber"
+                                placeholder="شماره ثبت را وارد کنید"
+                                required
+                            >
+                            <span id="registrationNumberError" class="error-message"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="registrationDateYear">سال ثبت</label>
+                            <input
+                                type="number"
+                                id="registrationDateYear"
+                                name="registrationDateYear"
+                                placeholder="مثال: 1403"
+                                required
+                                min="1300"
+                                max="1410"
+                            >
+                            <span id="registrationDateYearError" class="error-message"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="registrationDateMonth">ماه ثبت</label>
+                            <select id="registrationDateMonth" name="registrationDateMonth" required>
+                                <option value="">انتخاب کنید</option>
+                                <option value="1">فروردین</option>
+                                <option value="2">اردیبهشت</option>
+                                <option value="3">خرداد</option>
+                                <option value="4">تیر</option>
+                                <option value="5">مرداد</option>
+                                <option value="6">شهریور</option>
+                                <option value="7">مهر</option>
+                                <option value="8">آبان</option>
+                                <option value="9">آذر</option>
+                                <option value="10">دی</option>
+                                <option value="11">بهمن</option>
+                                <option value="12">اسفند</option>
+                            </select>
+                            <span id="registrationDateMonthError" class="error-message"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="registrationDateDay">روز ثبت</label>
+                            <select id="registrationDateDay" name="registrationDateDay" required>
+                                <option value="">انتخاب کنید</option>
+                            </select>
+                            <span id="registrationDateDayError" class="error-message"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location Section -->
+                <div class="form-section">
+                    <h3>محل ثبت</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="state">استان</label>
+                            <select id="state" name="state" required>
+                                <option value="">انتخاب کنید</option>
+                            </select>
+                            <span id="stateError" class="error-message"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="county">شهرستان</label>
+                            <select id="county" name="county" required disabled>
+                                <option value="">ابتدا استان را انتخاب کنید</option>
+                            </select>
+                            <span id="countyError" class="error-message"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="section">بخش</label>
+                            <select id="section" name="section" required disabled>
+                                <option value="">ابتدا شهرستان را انتخاب کنید</option>
+                            </select>
+                            <span id="sectionError" class="error-message"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="city">شهر</label>
+                            <select id="city" name="city" required disabled>
+                                <option value="">ابتدا بخش را انتخاب کنید</option>
+                            </select>
+                            <span id="cityError" class="error-message"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="form-section">
+                    <button type="submit" class="submit-btn">ثبت شرکت</button>
+                </div>
+
+                <div id="generalError" class="error-message general-error"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="changePasswordModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" onclick="closeChangePasswordModal()">&times;</span>
+            <h2>تغییر رمز عبور</h2>
+            <form id="changePasswordForm" onsubmit="handleChangePassword(event)">
+                <div class="form-group">
+                    <label for="currentPassword">رمز عبور فعلی</label>
+                    <input
+                        type="password"
+                        id="currentPassword"
+                        name="currentPassword"
+                        required
+                    >
+                    <span id="currentPasswordError" class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="newPassword">رمز عبور جدید</label>
+                    <input
+                        type="password"
+                        id="newPassword"
+                        name="newPassword"
+                        required
+                    >
+                    <span id="newPasswordError" class="error-message"></span>
+                    <div class="password-rules" id="passwordRules">
+                        <ul>
+                            <li id="ruleLength">حداقل ۸ کاراکتر</li>
+                            <li id="ruleUppercase">حداقل یک حرف بزرگ (A-Z)</li>
+                            <li id="ruleLowercase">حداقل یک حرف کوچک (a-z)</li>
+                            <li id="ruleNumber">حداقل یک عدد (0-9)</li>
+                            <li id="ruleSpecial">حداقل یک کاراکتر خاص (@$!%*?&)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">تایید رمز عبور جدید</label>
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        required
+                    >
+                    <span id="confirmPasswordError" class="error-message"></span>
+                </div>
+
+                <button type="submit" class="submit-btn">تغییر رمز عبور</button>
+                <div id="changePasswordGeneralError" class="error-message general-error"></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/company.js"></script>
+</body>
+</html>

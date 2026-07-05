@@ -187,9 +187,6 @@ def _get_state_names_by_parent(parent_code: str) -> dict:
             if row[2] and int(row[2]) == int(str(parent_code)):
                     # wb.close()
                     states[f'{row[3]}'] = str(row[1])
-            elif states.keys():
-                break
-
         # wb.close()
         return states
     except Exception as e:
@@ -218,9 +215,6 @@ def _get_county_names_by_parent(parent_code: str) -> dict:
             if row[2] and int(row[2]) == int(str(parent_code)):
                     # wb.close()
                     county[f'{row[3]}'] = str(row[1])
-            elif county.keys():
-                break
-
         # wb.close()
         return county
     except Exception as e:
@@ -249,8 +243,6 @@ def _get_section_names_by_parent(parent_code: str) -> dict:
             if row[2] and int(row[2]) == int(str(parent_code)):
                     # wb.close()
                     sections[f'{row[3]}'] = str(row[1])
-            elif sections.keys():
-                break
 
         # wb.close()
         return sections
@@ -280,8 +272,6 @@ def _get_city_names_by_parent(parent_code: str) -> list:
             if row[2] and int(row[2]) == int(str(parent_code)):
                     # wb.close()
                     city[f"{row[3]}"] = str(row[1])
-            elif city.keys():
-                break
 
         # wb.close()
         return city

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحه ورود</title>
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+    <div id="background" class="background"></div>
+
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p>لطفاً منتظر بمانید...</p>
+    </div>
+
+    <div class="login-container">
+        <div class="login-box">
+            <h1>ورود به <span>سیستم</span></h1>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="username">نام کاربری</label>
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        placeholder="نام کاربری خود را وارد کنید"
+                        autocomplete="username"
+                    >
+                    <span id="usernameError" class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">رمز عبور</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="رمز عبور خود را وارد کنید"
+                        autocomplete="current-password"
+                    >
+                    <span id="passwordError" class="error-message"></span>
+                    <div class="password-rules" id="passwordRules">
+                        <ul>
+                            <li id="ruleLength">حداقل ۸ کاراکتر</li>
+                            <li id="ruleUppercase">حداقل یک حرف بزرگ (A-Z)</li>
+                            <li id="ruleLowercase">حداقل یک حرف کوچک (a-z)</li>
+                            <li id="ruleNumber">حداقل یک عدد (0-9)</li>
+                            <li id="ruleSpecial">حداقل یک کاراکتر خاص (@$!%*?&)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <button type="submit" class="login-btn">ورود</button>
+            </form>
+            <div class="signup-link">
+                حساب کاربری ندارید؟ <a href="signup.html">ثبت نام کنید</a>
+            </div>
+            <div id="generalError" class="error-message general-error"></div>
+        </div>
+    </div>
+
+    <script src="js/login.js"></script>
+</body>
+</html>
