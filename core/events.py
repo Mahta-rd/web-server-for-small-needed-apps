@@ -3,7 +3,7 @@
 Module for retrieving events, month names, and day names for dates
 Data is loaded from events.json file
 """
-
+import sqlite3
 import json
 import os
 from datetime import date as datetime_date
@@ -13,9 +13,12 @@ import openpyxl
 
 from core.converters import convert, gregorian_to_jalali, gregorian_to_hijri
 from core.detector import detect_calendar_type
+from core.connect import execute_query, get_db_connection
 
 logger = logging.getLogger(__name__)
 
+con = sqlite3.connect('database.db')
+cursorObj = con.cursor()
 NAMES_FILE_PATH = os.path.join(os.path.dirname(__file__), 'data', 'weekday_name.json')
 EVENTS_FILE_PATH = os.path.join(os.path.dirname(__file__), 'data', 'events.xlsx')
 
@@ -127,10 +130,10 @@ def get_events_for_date(date_str: str, calendar_type: str = None) -> Dict[str, L
     hijri_str = conversion_result["hijri"]
     hy, hm, hd = map(int, hijri_str.split('/'))
     try:
-        wb = openpyxl.load_workbook(EVENTS_FILE_PATH, read_only=True, data_only=True)
-        ws = wb.active
-
-        for row in ws.iter_rows(min_row=2, values_only=True):
+        # wb = openpyxl.load_workbook(EVENTS_FILE_PATH, read_only=True, data_only=True)
+        # ws = wb.active
+        rows = execute_query('SELECT * FROM tEvents')
+        for row in rows:
             if row[0] and row[0] == 'M':
                 if int(row[1]) == int(gm) and int(row[2]) == int(gd):
                     events_result["gregorian"] = row[3].split("|")
@@ -140,7 +143,7 @@ def get_events_for_date(date_str: str, calendar_type: str = None) -> Dict[str, L
             else:
                 if int(row[1]) == int(hm) and int(row[2]) == int(hd):
                     events_result["hijri"] = row[3].split("|")
-        wb.close()
+        # wb.close()
     except Exception as e:
         raise ValueError(f"Error reading events data file: {str(e)}")
 

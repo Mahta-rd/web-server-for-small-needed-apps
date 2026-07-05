@@ -2,10 +2,13 @@
 from flask import Flask, request, jsonify
 from core.events import get_full_info
 from core.bank_validator import check_card_number, check_iban, detect_and_validate
-from core.nationalCode_validator import check, filter, filter_company
-from core.number_plate_validator import plate_filter
-from core.postal_code_validator import postal_filter
+from core.nationalCode_validator import check, filter, filter_company, get_national_code
+from core.number_plate_validator import plate_filter, get_plate
+from core.postal_code_validator import postal_filter, get_postal
+from core.phone_number_validator import landline_phone_number_filter, mobile_phone_number_filter, phone_number_filter, get_phone_number, get_mobie_phone_number
+from core.iran_city import get_information
 import json
+import re
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
@@ -35,7 +38,17 @@ def home():
             "/convert-date": "Convert dates between Jalali, Gregorian, and Hijri calendars",
             "/validate-card": "Validate bank card number and get bank name",
             "/validate-iban": "Validate Iranian IBAN and get bank name",
-            "/validate": "Auto-detect and validate (card or IBAN)"
+            "/validate": "Auto-detect and validate (card or IBAN)",
+            "/validate-personal-code": "Validate Iranian Personal national code and get city and town name",
+            "/validate-company-code": "Validate Iranian Companies national code",
+            "/validate-national-code": "Auto-detect and validate national code (personal or company)",
+            "/validate-postal-code": "Validate Iranian Postal code and get city and town name",
+            "/validate-plate-number": "Validate Iranian Plate numbers and get city and town name",
+            "/validate-landline-phone": "Validate Iranian landline phone numbers and get city and region name",
+            "/validate-mobile-phone": "Validate Iranian mobile phone nummber and get city and operator name",
+            "/validate-phone-number": "Auto-detect and validate phone number (mobile or landline)", 
+            "/get-city": "get next part of a given region",
+            "/get-city-information": "get cities information (postal code/plate number/etc) by city vode"
         },
         "usage": {
             "date_converter": {
@@ -86,6 +99,31 @@ def home():
                 "method": "GET or POST",
                 "parameter": "plate",
                 "example": "/validate-plate-number?plate=88-ق-155-15"
+            },
+            "landline_phone_validator": {
+                "method": "GET or POST",
+                "parameter": "landlinephone",
+                "example": "/validate-landline-phone?landlinephone=+98 021-66 05 12 34"
+            },
+            "mobile_phone_validator": {
+                "method": "GET or POST",
+                "parameter": "mobilephone",
+                "example": "/validate-mobile-phone?mobilephone=+98 910 0123456"
+            },
+            "phone_number_validator": {
+                "method": "GET or POST",
+                "parameter": "phone",
+                "example": "/validate-phone-number?phone=+98 910 069 5977"
+            },
+            "get_city": {
+                "method": "GET or POST",
+                "parameter": "code",
+                "example": "/get-city?code=1"
+            },
+            "get_city_information": {
+                "method": "GET or POST",
+                "parameter": "code",
+                "example": "/get-city-information?code=1"
             }
         }
     })
@@ -343,6 +381,158 @@ def validate_plate_number():
 
 
 # ============================================================
+# landline phone number Validator Endpoint
+# ============================================================
+
+@app.route('/validate-landline-phone', methods=['GET', 'POST'])
+def validate_landline_phone():
+    if request.method == 'GET':
+        landlinephone = request.args.get('landlinephone')
+    else:
+        data = request.get_json()
+        landlinephone = data.get('landlinephone') if data else None
+
+    if not landlinephone:
+        return custom_jsonify({
+            "error": "Missing 'landlinephone' parameter",
+            "usage": "/validate-landline-phone?landlinephone=+98 021-66 05 12 34"
+        }, 400)
+
+    try:
+        result = landline_phone_number_filter(landlinephone)
+        return custom_jsonify(result)
+    except ValueError as e:
+        return custom_jsonify({"error": str(e)}, 400)
+    except Exception as e:
+        app.logger.error(f"Unexpected error: {str(e)}")
+        return custom_jsonify({"error": "Internal Error"}, 500)
+
+# ============================================================
+# Mobile phone Validator Endpoint
+# ============================================================
+
+@app.route('/validate-mobile-phone', methods=['GET', 'POST'])
+def validate_mobile_phone():
+    if request.method == 'GET':
+        mobilephone = request.args.get('mobilephone')
+    else:
+        data = request.get_json()
+        mobilephone = data.get('mobilephone') if data else None
+
+    if not mobilephone:
+        return custom_jsonify({
+            "error": "Missing 'mobilephone' parameter",
+            "usage": "/validate-mobile-phone?mobilephone=+98 910 0123456"
+        }, 400)
+
+    try:
+        result = mobile_phone_number_filter(mobilephone)
+        return custom_jsonify(result)
+    except ValueError as e:
+        return custom_jsonify({"error": str(e)}, 400)
+    except Exception as e:
+        app.logger.error(f"Unexpected error: {str(e)}")
+        return custom_jsonify({"error": "Internal Error"}, 500)
+
+
+# ============================================================
+# Auto-detect Phone Number Validator Endpoint
+# ============================================================
+
+@app.route('/validate-phone-number', methods=['GET', 'POST'])
+def validate_phone_number():
+    if request.method == 'GET':
+        phone_number = request.args.get('phone')
+    else:
+        data = request.get_json()
+        phone_number = data.get('phone') if data else None
+
+    if not phone_number:
+        return custom_jsonify({
+            "error": "Missing 'phone' parameter",
+            "usage": "/validate-phone-number?phone=+98 910 069 5977 or /validate-phone-number?phone=+98 021-66 05 12 34"
+        }, 400)
+
+    try:
+        result = phone_number_filter(phone_number)
+        return custom_jsonify(result)
+    except ValueError as e:
+        return custom_jsonify({"error": str(e)}, 400)
+    except Exception as e:
+        app.logger.error(f"Unexpected error: {str(e)}")
+        return custom_jsonify({"error": "Internal Error"}, 500)
+
+# ============================================================
+# Get city for a given region
+# ============================================================
+
+@app.route('/get-city', methods=['GET', 'POST'])
+def vget_city():
+    if request.method == 'GET':
+        code = request.args.get('code')
+    else:
+        data = request.get_json()
+        code = data.get('code') if data else None
+
+    if not code:
+        return custom_jsonify({
+            "error": "Missing 'code' parameter",
+            "usage": "/get-city?code=1"
+        }, 400)
+
+    try:
+        result = get_information(code)
+        return custom_jsonify(result)
+    except ValueError as e:
+        return custom_jsonify({"error": str(e)}, 400)
+    except Exception as e:
+        app.logger.error(f"Unexpected error: {str(e)}")
+        return custom_jsonify({"error": "Internal Error"}, 500)
+
+
+# ============================================================
+# Get information in a given city
+# ============================================================
+
+@app.route('/get-city-information', methods=['GET', 'POST'])
+def get_city_information():
+    if request.method == 'GET':
+        code = request.args.get('code')
+    else:
+        data = request.get_json()
+        code = data.get('code') if data else None
+
+    if not code:
+        return custom_jsonify({
+            "error": "Missing 'code' parameter",
+            "usage": "/get-city-information?code=1"
+        }, 400)
+
+    try:
+        cleaned = ''.join(re.findall(r"[0-9]+", code))
+        plate = get_plate(cleaned)
+        postal = get_postal(cleaned)
+        phone = get_phone_number(cleaned)
+        mobile = get_mobie_phone_number(cleaned)
+        national = get_national_code(cleaned)
+        parents = get_information(cleaned)
+        result = {
+            'city_code': cleaned,
+            'plate': plate,
+            'postal': postal,
+            'phone': phone,
+            'mobile_phone': mobile,
+            'national_code': national
+        }
+        result.update(parents)
+        return custom_jsonify(result)
+    except ValueError as e:
+        return custom_jsonify({"error": str(e)}, 400)
+    except Exception as e:
+        app.logger.error(f"Unexpected error: {str(e)}")
+        return custom_jsonify({"error": "Internal Error"}, 500)
+
+# ============================================================
 # Run Server
 # ============================================================
 
@@ -359,8 +549,13 @@ if __name__ == '__main__':
     print("  GET/POST  /validate-personal-code?pesonal=...")
     print("  GET/POST  /validate-company-code?company=...")
     print("  GET/POST  /validate-national-code?input=...")
-    print("  GET/POST  /validate-postal-code?input=...")
-    print("  GET/POST  /validate-plate-number?input=...")
+    print("  GET/POST  /validate-postal-code?postal=...")
+    print("  GET/POST  /validate-plate-number?plate=...")
+    print("  GET/POST  /validate-landline-phone?landlinephone=...")
+    print("  GET/POST  /validate-mobile-phone?mobilephone=...")
+    print("  GET/POST  /validate-phone-number?phone=...")
+    print("  GET/POST  /get-city?code=...")
+    print("  GET/POST  /get-city-information?code=...")
     print("\nExamples:")
     print("  http://127.0.0.1:5000/convert-date?date=1402/10/11")
     print("  http://127.0.0.1:5000/validate-card?card=6037991234567890")
@@ -371,6 +566,11 @@ if __name__ == '__main__':
     print("  http://127.0.0.1:5000/validate-national-code?input=125-632-548-06")
     print("  http://127.0.0.1:5000/validate-postal-code?postal=13456 78092")
     print("  http://127.0.0.1:5000/validate-plate-number?plate=88-ق-155-15")
+    print("  http://127.0.0.1:5000/validate-landline-phone?landlinephone=+98 021-66 05 12 34")
+    print("  http://127.0.0.1:5000/validate-mobile-phone?mobilephone=+98 910 0123456")
+    print("  http://127.0.0.1:5000/validate-phone-number?phone=+98 910 069 5977")
+    print("  http://127.0.0.1:5000/get-city?code=1")
+    print("  http://127.0.0.1:5000/get-city-information?code=1")
     print("\nPress Ctrl+C to stop\n")
 
     app.run(debug=True, host='0.0.0.0', port=5000)

@@ -1,17 +1,19 @@
 """
 Module for validating Iranian bank card numbers and IBANs
 """
-
+import sqlite3
 import re
 import numpy as np
 import openpyxl
 import os
 from typing import Dict, Tuple
+from core.connect import execute_query, get_db_connection
 
 # ============================================================
 # Paths to data files
 # ============================================================
-
+con = sqlite3.connect('database.db')
+cursorObj = con.cursor()
 BASE_DIR = os.path.dirname(__file__)
 IRAN_BANK_FILE = os.path.join(BASE_DIR, 'data', 'iran_bank.xlsx')
 LETTERS_FILE = os.path.join(BASE_DIR, 'data', 'letters.xlsx')
@@ -31,8 +33,8 @@ def _validate_card_luhn(card_number: str) -> bool:
     Returns:
         True if valid, False otherwise
     """
-    number = np.array([int(char) for char in card_number])
-    odd_mask = [i % 2 == 0 for i in range(len(card_number))]
+    number = np.array([int(char) for char in str(card_number)])
+    odd_mask = [i % 2 == 0 for i in range(len(str(card_number)))]
     number[odd_mask] *= 2
     number[number > 9] -= 9
     total_sum = number.sum()
@@ -49,18 +51,18 @@ def _get_bank_name_from_bin(card_number: str) -> str:
     Returns:
         Bank name or empty string if not found
     """
-    bin_prefix = card_number[:6]
+    bin_prefix = str(card_number)[:6]
 
     try:
-        wb = openpyxl.load_workbook(IRAN_BANK_FILE, read_only=True, data_only=True)
-        ws = wb.active
-
-        for row in ws.iter_rows(min_row=2, values_only=True):
+        # wb = openpyxl.load_workbook(IRAN_BANK_FILE, read_only=True, data_only=True)
+        # ws = wb.active
+        rows = execute_query('SELECT * FROM tIranBank')
+        for row in rows:
             if row[2] and int(row[2]) == int(bin_prefix):
-                wb.close()
+                #wb.close()
                 return str(row[0])
 
-        wb.close()
+        #wb.close()
     except Exception as e:
         raise ValueError(f"Error reading bank data file: {str(e)}")
 
@@ -80,22 +82,22 @@ def check_card_number(card_number: str) -> Dict:
     Raises:
         ValueError: If card number is invalid
     """
-    digits = re.findall(r"[0-9]+", card_number)
+    digits = re.findall(r"[0-9]+", str(card_number))
     clean_number = ''.join(digits)
 
     if len(clean_number) != 16:
         raise ValueError("Bank card number must be exactly 16 digits")
 
-    if not _validate_card_luhn(clean_number):
+    if not _validate_card_luhn(str(clean_number)):
         raise ValueError("Invalid bank card number (Luhn check failed)")
 
-    bank_name = _get_bank_name_from_bin(clean_number)
+    bank_name = _get_bank_name_from_bin(str(clean_number))
     if not bank_name:
         raise ValueError("Bank not found for this card number")
 
     return {
-        "bank_card_number": clean_number,
-        "bank_name": bank_name,
+        "bank_card_number": str(clean_number),
+        "bank_name": str(bank_name),
         "type": "card"
     }
 
@@ -115,19 +117,19 @@ def _get_letter_value(letter: str) -> int:
         Numeric value (10 for A, 11 for B, ..., 35 for Z)
     """
     try:
-        wb = openpyxl.load_workbook(LETTERS_FILE, read_only=True, data_only=True)
-        ws = wb.active
-
-        for row in ws.iter_rows(min_row=2, values_only=True):
-            if row[0] and row[0] == letter:
-                wb.close()
+        # wb = openpyxl.load_workbook(LETTERS_FILE, read_only=True, data_only=True)
+        # ws = wb.active
+        rows = execute_query('SELECT * FROM tLetter')
+        for row in rows:
+            if row[0] and row[0] == str(letter):
+                #wb.close()
                 return int(row[1])
 
-        wb.close()
+        #wb.close()
     except Exception as e:
         raise ValueError(f"Error reading letters file: {str(e)}")
 
-    raise ValueError(f"Invalid letter in IBAN: {letter}")
+    raise ValueError(f"Invalid letter in IBAN: {str(letter)}")
 
 
 def _calculate_iban_control_code(check_string: str) -> int:
@@ -140,10 +142,10 @@ def _calculate_iban_control_code(check_string: str) -> int:
     Returns:
         Control code (should be 0-97)
     """
-    r1 = int(check_string[0:4]) % 97
+    r1 = int(str(check_string)[0:4]) % 97
 
-    for i in range(4, len(check_string), 4):
-        block = int(check_string[i:i+4])
+    for i in range(4, len(str(check_string)), 4):
+        block = int(str(check_string)[i:i+4])
         r2 = block % 97
         r1 = (r1 * 9 + r2) % 97
 
@@ -160,19 +162,19 @@ def _get_bank_name_from_iban(iban: str) -> str:
     Returns:
         Bank name
     """
-    bban = iban[4:]
+    bban = str(iban)[4:]
     bank_code = bban[:3]
 
     try:
-        wb = openpyxl.load_workbook(IRAN_BANK_FILE, read_only=True, data_only=True)
-        ws = wb.active
-
-        for row in ws.iter_rows(min_row=2, values_only=True):
+        # wb = openpyxl.load_workbook(IRAN_BANK_FILE, read_only=True, data_only=True)
+        # ws = wb.active
+        rows = execute_query('SELECT * FROM tIranBank')
+        for row in rows:
             if row[1] and int(row[1]) == int(bank_code):
-                wb.close()
+                # wb.close()
                 return str(row[0])
 
-        wb.close()
+        # wb.close()
     except Exception as e:
         raise ValueError(f"Error reading bank data file: {str(e)}")
 
@@ -192,7 +194,7 @@ def check_iban(iban_str: str) -> Dict:
     Raises:
         ValueError: If IBAN is invalid
     """
-    chars = re.findall(r"[a-zA-Z0-9]+", iban_str)
+    chars = re.findall(r"[a-zA-Z0-9]+", str(iban_str))
     clean_iban = ''.join(chars).upper()
 
     if len(clean_iban) != 26:
@@ -205,8 +207,8 @@ def check_iban(iban_str: str) -> Dict:
         raise ValueError("IBAN is not for Iran (must start with 'IR')")
 
     letters_num = [
-        _get_letter_value(clean_iban[0]),
-        _get_letter_value(clean_iban[1])
+        _get_letter_value(str(clean_iban)[0]),
+        _get_letter_value(str(clean_iban)[1])
     ]
 
     check_id = clean_iban[4:] + ''.join(str(num) for num in letters_num) + "00"
@@ -214,16 +216,16 @@ def check_iban(iban_str: str) -> Dict:
     if len(check_id) % 4 != 0:
         check_id = "0" * (4 - (len(check_id) % 4)) + check_id
 
-    control_code = _calculate_iban_control_code(check_id)
+    control_code = _calculate_iban_control_code(str(check_id))
 
     if control_code != int(clean_iban[2:4]):
         raise ValueError("IBAN is invalid (control code mismatch)")
 
-    bank_name = _get_bank_name_from_iban(clean_iban)
+    bank_name = _get_bank_name_from_iban(str(clean_iban))
 
     return {
-        "iban": clean_iban,
-        "bank_name": bank_name,
+        "iban": str(clean_iban),
+        "bank_name": str(bank_name),
         "type": "iban"
     }
 
@@ -246,7 +248,7 @@ def detect_and_validate(input_str: str) -> Dict:
     Raises:
         ValueError: If input is neither valid card nor valid IBAN
     """
-    cleaned = re.sub(r'[^a-zA-Z0-9]', '', input_str).upper()
+    cleaned = re.sub(r'[^a-zA-Z0-9]', '', str(input_str)).upper()
 
     if cleaned.isdigit() and len(cleaned) == 16:
         try:
@@ -260,3 +262,5 @@ def detect_and_validate(input_str: str) -> Dict:
         pass
 
     raise ValueError("Input is neither a valid bank card number nor a valid IBAN")
+
+
