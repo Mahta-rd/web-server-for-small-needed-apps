@@ -3,6 +3,7 @@ import re
 import secrets
 from datetime import datetime
 from backend.database import Database
+import requests
 
 
 class Auth:
@@ -280,7 +281,8 @@ class Auth:
 
     @staticmethod
     def validate_company_national_code(national_code):
-        """Validate company national code
+        """
+        Validate company national code using the web service API
 
         Args:
             national_code: 11-digit national code string
@@ -288,23 +290,29 @@ class Auth:
         Returns:
             True if valid, False otherwise
         """
-        # Remove non-digit characters
-        cleaned = re.sub(r'\D', '', str(national_code))
+        try:
+            # ارسال درخواست به API وب سرویس
+            response = requests.post(
+                'http://localhost:5000/validate-company-code',
+                json={'company': national_code},
+                timeout=5
+            )
 
-        if len(cleaned) != 11:
+            if response.status_code == 200:
+                data = response.json()
+                # اگر خطایی وجود نداشته باشد و نتیجه برگردد، معتبر است
+                if 'national_code' in data and data.get('type') == 'Company':
+                    return True
+                return False
+            else:
+                return False
+
+        except requests.exceptions.Timeout:
+            print("[ERROR] Company national code validation timeout")
             return False
-
-        # Check if all digits are the same (invalid)
-        if re.match(r'^(\d)\1{10}$', cleaned):
+        except requests.exceptions.ConnectionError:
+            print("[ERROR] Cannot connect to validation service")
             return False
-
-        # Company national code validation algorithm
-        coefficient = [29, 27, 23, 19, 17, 29, 27, 23, 19, 247]
-        total = 0
-        for i in range(10):
-            total += int(cleaned[i]) * coefficient[i]
-        total += 460
-        remain = total % 11
-        control_digit = 0 if remain == 10 else remain
-
-        return control_digit == int(cleaned[10])
+        except Exception as e:
+            print(f"[ERROR] Error in company national code validation: {e}")
+            return False

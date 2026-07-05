@@ -43,17 +43,11 @@ class Database:
             # Create companies table
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS tCompanies (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                     userName TEXT NOT NULL,
                     companyName TEXT NOT NULL,
-                    nationalCode TEXT UNIQUE NOT NULL,
+                    nationalCode TEXT PRIMARY KEY,
                     registrationNumber TEXT NOT NULL,
-                    registrationYear INTEGER NOT NULL,
-                    registrationMonth INTEGER NOT NULL,
-                    registrationDay INTEGER NOT NULL,
-                    stateCode TEXT NOT NULL,
-                    countyCode TEXT NOT NULL,
-                    sectionCode TEXT NOT NULL,
+                    registrationDate TEXT NOT NULL,
                     cityCode TEXT NOT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -94,23 +88,19 @@ class Database:
 
         try:
             cursor = conn.cursor()
+            reg_date = company_data['registrationDate']
+            registration_date = f"{reg_date['year']:04d}/{reg_date['month']:02d}/{reg_date['day']:02d}"
             cursor.execute('''
                 INSERT INTO tCompanies (
                     userName, companyName, nationalCode, registrationNumber,
-                    registrationYear, registrationMonth, registrationDay,
-                    stateCode, countyCode, sectionCode, cityCode
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    registrationDate, cityCode
+                ) VALUES (?, ?, ?, ?, ?, ?)
             ''', (
                 username,
                 company_data['companyName'],
                 company_data['nationalCode'],
                 company_data['registrationNumber'],
-                company_data['registrationDate']['year'],
-                company_data['registrationDate']['month'],
-                company_data['registrationDate']['day'],
-                company_data['location']['state'],
-                company_data['location']['county'],
-                company_data['location']['section'],
+                registration_date,
                 company_data['location']['city']
             ))
             conn.commit()
@@ -135,8 +125,7 @@ class Database:
             cursor = conn.cursor()
             cursor.execute('''
                 SELECT id, companyName, nationalCode, registrationNumber,
-                       registrationYear, registrationMonth, registrationDay,
-                       stateCode, countyCode, sectionCode, cityCode, created_at
+                       registrationDate, cityCode, created_at
                 FROM tCompanies WHERE userName = ?
                 ORDER BY created_at DESC
             ''', (username,))
