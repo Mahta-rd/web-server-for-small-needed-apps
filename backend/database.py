@@ -55,6 +55,18 @@ class Database:
                 )
             ''')
 
+            # Create registration centers table
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS tRegistrationCenters (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    code TEXT UNIQUE,
+                    address TEXT,
+                    phone TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+
             conn.commit()
             conn.close()
             print("[OK] Database initialized successfully")
@@ -101,7 +113,8 @@ class Database:
                 company_data['nationalCode'],
                 company_data['registrationNumber'],
                 registration_date,
-                company_data['location']['city']
+                company_data['location']['city'],
+                company_data.get('registrationCenter', '')
             ))
             conn.commit()
             print(f"[OK] Company {company_data['companyName']} created successfully")
@@ -367,5 +380,26 @@ class Database:
         except sqlite3.Error as e:
             print(f"[ERROR] Error deleting session: {e}")
             return False
+        finally:
+            self.close_connection(conn)
+
+    def get_registration_centers(self):
+        """Get all registration centers"""
+        conn = self.get_connection()
+        if not conn:
+            return []
+
+        try:
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT id, name, code, address, phone 
+                FROM tRegistrationCenters 
+                ORDER BY name
+            ''')
+            results = cursor.fetchall()
+            return [dict(row) for row in results]
+        except sqlite3.Error as e:
+            print(f"[ERROR] Error getting registration centers: {e}")
+            return []
         finally:
             self.close_connection(conn)

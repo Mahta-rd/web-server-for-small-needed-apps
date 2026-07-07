@@ -5,6 +5,214 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ثبت شرکت</title>
     <link rel="stylesheet" href="css/company.css">
+    <style>
+        /* استایل‌های تقویم */
+        .calendar-container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin-bottom: 15px;
+            direction: rtl;
+            font-family: 'B Yekan', 'Tahoma', sans-serif;
+            border: 1px solid #e0e0e0;
+            user-select: none;
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 0 5px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .calendar-header .month-year {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            min-width: 120px;
+            text-align: center;
+        }
+        .calendar-header .nav-btn {
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: #3498db;
+            cursor: pointer;
+            padding: 0 12px;
+            transition: color 0.2s;
+            font-weight: bold;
+        }
+        .calendar-header .nav-btn:hover {
+            color: #1a5276;
+        }
+        .calendar-header .today-btn {
+            background: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+        .calendar-header .today-btn:hover {
+            background: #1a5276;
+        }
+        .calendar-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+            margin-top: 5px;
+        }
+        .calendar-controls .year-input {
+            width: 80px;
+            padding: 5px 8px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: center;
+            font-family: inherit;
+            background: #f9f9f9;
+            transition: border-color 0.3s;
+        }
+        .calendar-controls .year-input:focus {
+            outline: none;
+            border-color: #3498db;
+            background: #fff;
+        }
+        .calendar-controls .month-select {
+            padding: 5px 8px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            background: #f9f9f9;
+            transition: border-color 0.3s;
+            cursor: pointer;
+        }
+        .calendar-controls .month-select:focus {
+            outline: none;
+            border-color: #3498db;
+            background: #fff;
+        }
+        .calendar-controls .go-btn {
+            background: #27ae60;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+        .calendar-controls .go-btn:hover {
+            background: #1e8449;
+        }
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+        }
+        .calendar-grid .day-cell {
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            background: #f8f9fa;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        .calendar-grid .day-cell:hover:not(.empty) {
+            background: #d4e6f1;
+        }
+        .calendar-grid .day-cell.empty {
+            background: transparent;
+            cursor: default;
+        }
+        .calendar-grid .day-cell.selected {
+            background: #3498db;
+            color: #fff;
+            font-weight: bold;
+        }
+        .calendar-grid .day-cell.today {
+            border: 2px solid #e67e22;
+        }
+        .calendar-grid .day-cell.other-month {
+            color: #aaa;
+        }
+        .calendar-grid .day-cell.weekend {
+            color: #e74c3c;
+        }
+        .calendar-grid .day-cell.weekend.other-month {
+            color: #f5a0a0;
+        }
+        .calendar-grid .day-cell.selected.weekend {
+            color: #fff;
+        }
+        .calendar-inputs {
+            display: none;
+        }
+        .date-fields-replaced .form-group:has(#registrationDateYear),
+        .date-fields-replaced .form-group:has(#registrationDateMonth),
+        .date-fields-replaced .form-group:has(#registrationDateDay) {
+            display: none;
+        }
+        .form-row.date-row {
+            margin-top: 5px;
+        }
+        #registrationDateError {
+            margin-top: 8px;
+        }
+        /* واکنش‌گرا */
+        @media (max-width: 480px) {
+            .calendar-header .month-year {
+                font-size: 15px;
+                min-width: 80px;
+            }
+            .calendar-header .nav-btn {
+                font-size: 18px;
+                padding: 0 8px;
+            }
+            .calendar-grid .day-cell {
+                font-size: 13px;
+            }
+            .calendar-container {
+                padding: 10px;
+            }
+            .calendar-controls .year-input {
+                width: 65px;
+                font-size: 13px;
+            }
+            .calendar-controls .month-select {
+                font-size: 13px;
+                padding: 5px 6px;
+            }
+            .calendar-controls .go-btn {
+                font-size: 13px;
+                padding: 5px 12px;
+            }
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -67,47 +275,52 @@
                         </div>
                     </div>
 
-                    <div class="form-row">
+                    <!-- فیلدهای مخفی تاریخ (برای سازگاری با backend) -->
+                    <div class="form-row date-fields-replaced" style="display:none;">
                         <div class="form-group">
-                            <label for="registrationDateYear">سال ثبت</label>
-                            <input
-                                type="number"
-                                id="registrationDateYear"
-                                name="registrationDateYear"
-                                placeholder="مثال: 1403"
-                                required
-                                min="1300"
-                                max="1410"
-                            >
-                            <span id="registrationDateYearError" class="error-message"></span>
+                            <input type="number" id="registrationDateYear" name="registrationDateYear" value="">
+                            <input type="text" id="registrationDateMonth" name="registrationDateMonth" value="">
+                            <input type="text" id="registrationDateDay" name="registrationDateDay" value="">
                         </div>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="registrationDateMonth">ماه ثبت</label>
-                            <select id="registrationDateMonth" name="registrationDateMonth" required>
-                                <option value="">انتخاب کنید</option>
-                                <option value="1">فروردین</option>
-                                <option value="2">اردیبهشت</option>
-                                <option value="3">خرداد</option>
-                                <option value="4">تیر</option>
-                                <option value="5">مرداد</option>
-                                <option value="6">شهریور</option>
-                                <option value="7">مهر</option>
-                                <option value="8">آبان</option>
-                                <option value="9">آذر</option>
-                                <option value="10">دی</option>
-                                <option value="11">بهمن</option>
-                                <option value="12">اسفند</option>
-                            </select>
-                            <span id="registrationDateMonthError" class="error-message"></span>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="registrationDateDay">روز ثبت</label>
-                            <select id="registrationDateDay" name="registrationDateDay" required>
-                                <option value="">انتخاب کنید</option>
-                            </select>
-                            <span id="registrationDateDayError" class="error-message"></span>
+                    <!-- تقویم -->
+                    <div class="form-row date-row">
+                        <div class="form-group full-width">
+                            <label>تاریخ ثبت</label>
+                            <div class="calendar-container" id="calendarContainer">
+                                <div class="calendar-header">
+                                    <button type="button" class="nav-btn" id="prevMonthBtn">‹</button>
+                                    <span class="month-year" id="calendarTitle">در حال بارگذاری...</span>
+                                    <button type="button" class="nav-btn" id="nextMonthBtn">›</button>
+                                    <button type="button" class="today-btn" id="todayBtn">امروز</button>
+                                </div>
+                                <!-- بخش ورودی دستی سال و ماه -->
+                                <div class="calendar-controls">
+                                    <input type="number" class="year-input" id="manualYear" placeholder="سال" min="1300" max="1410">
+                                    <select class="month-select" id="manualMonth">
+                                        <option value="1">فروردین</option>
+                                        <option value="2">اردیبهشت</option>
+                                        <option value="3">خرداد</option>
+                                        <option value="4">تیر</option>
+                                        <option value="5">مرداد</option>
+                                        <option value="6">شهریور</option>
+                                        <option value="7">مهر</option>
+                                        <option value="8">آبان</option>
+                                        <option value="9">آذر</option>
+                                        <option value="10">دی</option>
+                                        <option value="11">بهمن</option>
+                                        <option value="12">اسفند</option>
+                                    </select>
+                                    <button type="button" class="go-btn" id="goToDateBtn">برو</button>
+                                </div>
+                                <div class="calendar-weekdays" id="weekdaysHeader">
+                                    <span>ش</span><span>ی</span><span>د</span><span>س</span><span>چ</span><span>پ</span><span>ج</span>
+                                </div>
+                                <div class="calendar-grid" id="calendarGrid"></div>
+                            </div>
+                            <input type="hidden" id="selectedDate" name="registrationDate" value="">
+                            <span id="registrationDateError" class="error-message"></span>
                         </div>
                     </div>
                 </div>
@@ -151,6 +364,19 @@
                         </div>
                     </div>
                 </div>
+                <!-- Registration Centers Section -->
+                <div class="form-section">
+                    <h3>مراکز ثبت</h3>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="registrationCenter">مرکز ثبت</label>
+                            <select id="registrationCenter" name="registrationCenter" required>
+                                <option value="">انتخاب کنید</option>
+                            </select>
+                            <span id="registrationCenterError" class="error-message"></span>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Submit Button -->
                 <div class="form-section">
@@ -170,23 +396,12 @@
             <form id="changePasswordForm" onsubmit="handleChangePassword(event)">
                 <div class="form-group">
                     <label for="currentPassword">رمز عبور فعلی</label>
-                    <input
-                        type="password"
-                        id="currentPassword"
-                        name="currentPassword"
-                        required
-                    >
+                    <input type="password" id="currentPassword" name="currentPassword" required>
                     <span id="currentPasswordError" class="error-message"></span>
                 </div>
-
                 <div class="form-group">
                     <label for="newPassword">رمز عبور جدید</label>
-                    <input
-                        type="password"
-                        id="newPassword"
-                        name="newPassword"
-                        required
-                    >
+                    <input type="password" id="newPassword" name="newPassword" required>
                     <span id="newPasswordError" class="error-message"></span>
                     <div class="password-rules" id="passwordRules">
                         <ul>
@@ -198,18 +413,11 @@
                         </ul>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label for="confirmPassword">تایید رمز عبور جدید</label>
-                    <input
-                        type="password"
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        required
-                    >
+                    <input type="password" id="confirmPassword" name="confirmPassword" required>
                     <span id="confirmPasswordError" class="error-message"></span>
                 </div>
-
                 <button type="submit" class="submit-btn">تغییر رمز عبور</button>
                 <div id="changePasswordGeneralError" class="error-message general-error"></div>
             </form>
@@ -217,5 +425,261 @@
     </div>
 
     <script src="js/company.js"></script>
+    <script>
+        // ============================================================
+        // تقویم شمسی - با استفاده از API برای تبدیل تاریخ
+        // ============================================================
+        (function() {
+            'use strict';
+
+            // --- عناصر DOM ---
+            const grid = document.getElementById('calendarGrid');
+            const title = document.getElementById('calendarTitle');
+            const prevBtn = document.getElementById('prevMonthBtn');
+            const nextBtn = document.getElementById('nextMonthBtn');
+            const todayBtn = document.getElementById('todayBtn');
+            const selectedDateInput = document.getElementById('selectedDate');
+            const manualYear = document.getElementById('manualYear');
+            const manualMonth = document.getElementById('manualMonth');
+            const goToDateBtn = document.getElementById('goToDateBtn');
+
+            // --- متغیرهای حالت ---
+            let currentYear = 1400;
+            let currentMonth = 1;
+            let selectedDay = null;
+            let isLoading = false;
+
+            // --- نام ماه‌ها ---
+            const monthNames = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
+                'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
+
+            // --- تعداد روزهای هر ماه شمسی ---
+            function getJalaliMonthDays(year, month) {
+                if (month >= 1 && month <= 6) return 31;
+                if (month >= 7 && month <= 11) return 30;
+                if (month === 12) {
+                    const rem = year % 33;
+                    const leapYears = [1, 5, 9, 13, 17, 22, 26, 30];
+                    return leapYears.includes(rem) ? 30 : 29;
+                }
+                return 30;
+            }
+
+            // --- دریافت تاریخ امروز به شمسی از API ---
+            async function getTodayJalali() {
+                try {
+                    const today = new Date();
+                    const year = today.getFullYear();
+                    const month = String(today.getMonth() + 1).padStart(2, '0');
+                    const day = String(today.getDate()).padStart(2, '0');
+                    const gregorianDate = `${year}-${month}-${day}`;
+
+                    const response = await fetch(`http://localhost:5000/convert-date?date=${gregorianDate}`);
+                    if (!response.ok) throw new Error('API response not ok');
+                    const data = await response.json();
+
+                    const jalaliStr = data.dates?.jalali;
+                    if (!jalaliStr) throw new Error('Jalali date not found');
+
+                    const parts = jalaliStr.split('/').map(Number);
+                    return { year: parts[0], month: parts[1], day: parts[2] };
+                } catch (e) {
+                    console.error('Error getting today from API:', e);
+                    const now = new Date();
+                    const jYear = now.getFullYear() - 621;
+                    const jMonth = now.getMonth() + 1;
+                    const jDay = now.getDate();
+                    return { year: jYear, month: jMonth, day: jDay };
+                }
+            }
+
+            // --- دریافت اولین روز هفته برای اولین روز ماه (با استفاده از API) ---
+            async function getFirstDayOfMonth(year, month) {
+                const dateStr = `${year}/${String(month).padStart(2, '0')}/01`;
+                try {
+                    const response = await fetch(`http://localhost:5000/convert-date?date=${dateStr}`);
+                    if (!response.ok) throw new Error('API response not ok');
+                    const data = await response.json();
+                    const gregorianDate = data.dates?.gregorian;
+                    if (!gregorianDate) throw new Error('Gregorian date not found');
+
+                    const parts = gregorianDate.split('-').map(Number);
+                    const gDate = new Date(parts[0], parts[1] - 1, parts[2]);
+                    let dayOfWeek = gDate.getDay();
+                    return (dayOfWeek + 1) % 7;
+                } catch (e) {
+                    console.warn('Error fetching first day of month, using fallback:', e);
+                    const gDate = new Date(year + 621, month - 1, 1);
+                    let dayOfWeek = gDate.getDay();
+                    return (dayOfWeek + 1) % 7;
+                }
+            }
+
+            // --- به‌روزرسانی فیلدهای ورودی دستی با مقدار فعلی ---
+            function updateManualInputs() {
+                manualYear.value = currentYear;
+                manualMonth.value = currentMonth;
+            }
+
+            // --- رندر تقویم ---
+            async function renderCalendar(year, month) {
+                if (isLoading) return;
+                isLoading = true;
+                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#888;">در حال بارگذاری...</div>';
+
+                try {
+                    const daysInMonth = getJalaliMonthDays(year, month);
+                    const firstDayIndex = await getFirstDayOfMonth(year, month);
+
+                    const totalCells = Math.ceil((firstDayIndex + daysInMonth) / 7) * 7;
+                    let html = '';
+
+                    for (let i = 0; i < firstDayIndex; i++) {
+                        html += `<div class="day-cell empty"></div>`;
+                    }
+
+                    const todayJalali = await getTodayJalali();
+                    const isTodayMonth = (year === todayJalali.year && month === todayJalali.month);
+
+                    for (let d = 1; d <= daysInMonth; d++) {
+                        const dayOfWeek = (firstDayIndex + d - 1) % 7;
+                        const isWeekend = (dayOfWeek === 5 || dayOfWeek === 6);
+                        const isToday = isTodayMonth && d === todayJalali.day;
+                        const isSelected = (selectedDay === d);
+
+                        let classes = 'day-cell';
+                        if (isWeekend) classes += ' weekend';
+                        if (isToday) classes += ' today';
+                        if (isSelected) classes += ' selected';
+
+                        html += `<div class="${classes}" data-day="${d}">${d}</div>`;
+                    }
+
+                    const remaining = totalCells - (firstDayIndex + daysInMonth);
+                    for (let i = 0; i < remaining; i++) {
+                        html += `<div class="day-cell empty"></div>`;
+                    }
+
+                    grid.innerHTML = html;
+                    title.textContent = `${monthNames[month-1]} ${year}`;
+                    updateManualInputs();
+
+                    // رویداد کلیک روی روزها
+                    document.querySelectorAll('.day-cell:not(.empty)').forEach(el => {
+                        el.addEventListener('click', function() {
+                            const day = parseInt(this.dataset.day);
+                            if (!isNaN(day)) {
+                                selectedDay = day;
+                                document.querySelectorAll('.day-cell.selected').forEach(c => c.classList.remove('selected'));
+                                this.classList.add('selected');
+
+                                const dateStr = `${year}/${String(month).padStart(2,'0')}/${String(day).padStart(2,'0')}`;
+                                selectedDateInput.value = dateStr;
+                                document.getElementById('registrationDateError').textContent = '';
+                                document.getElementById('registrationDateYear').value = year;
+                                document.getElementById('registrationDateMonth').value = month;
+                                document.getElementById('registrationDateDay').value = day;
+                            }
+                        });
+                    });
+
+                    if (selectedDay && selectedDay <= daysInMonth) {
+                        document.querySelectorAll('.day-cell:not(.empty)').forEach(el => {
+                            if (parseInt(el.dataset.day) === selectedDay) {
+                                el.classList.add('selected');
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.error('Error rendering calendar:', e);
+                    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#e74c3c;">خطا در بارگذاری تقویم</div>';
+                } finally {
+                    isLoading = false;
+                }
+            }
+
+            // --- رفتن به تاریخ مشخص (با ورودی دستی) ---
+            function goToManualDate() {
+                const year = parseInt(manualYear.value);
+                const month = parseInt(manualMonth.value);
+
+                if (isNaN(year) || year < 1300 || year > 1410) {
+                    alert('سال باید بین ۱۳۰۰ تا ۱۴۱۰ باشد');
+                    manualYear.focus();
+                    return;
+                }
+                if (isNaN(month) || month < 1 || month > 12) {
+                    alert('ماه معتبر نیست');
+                    return;
+                }
+
+                currentYear = year;
+                currentMonth = month;
+                // انتخاب روز را نگه می‌داریم ولی اگر روز بیشتر از تعداد روزهای ماه بود، ریست می‌شود
+                const daysInMonth = getJalaliMonthDays(year, month);
+                if (selectedDay && selectedDay > daysInMonth) {
+                    selectedDay = null;
+                }
+                renderCalendar(currentYear, currentMonth);
+            }
+
+            // --- تنظیم تاریخ به امروز ---
+            async function goToToday() {
+                const today = await getTodayJalali();
+                currentYear = today.year;
+                currentMonth = today.month;
+                selectedDay = today.day;
+                await renderCalendar(currentYear, currentMonth);
+
+                const dateStr = `${currentYear}/${String(currentMonth).padStart(2,'0')}/${String(selectedDay).padStart(2,'0')}`;
+                selectedDateInput.value = dateStr;
+                document.getElementById('registrationDateYear').value = currentYear;
+                document.getElementById('registrationDateMonth').value = currentMonth;
+                document.getElementById('registrationDateDay').value = selectedDay;
+
+                document.querySelectorAll('.day-cell:not(.empty)').forEach(el => {
+                    if (parseInt(el.dataset.day) === selectedDay) {
+                        el.classList.add('selected');
+                    }
+                });
+            }
+
+            // --- رویدادها ---
+            prevBtn.addEventListener('click', function() {
+                if (currentMonth === 1) {
+                    currentMonth = 12;
+                    currentYear -= 1;
+                } else {
+                    currentMonth -= 1;
+                }
+                renderCalendar(currentYear, currentMonth);
+            });
+
+            nextBtn.addEventListener('click', function() {
+                if (currentMonth === 12) {
+                    currentMonth = 1;
+                    currentYear += 1;
+                } else {
+                    currentMonth += 1;
+                }
+                renderCalendar(currentYear, currentMonth);
+            });
+
+            todayBtn.addEventListener('click', goToToday);
+            goToDateBtn.addEventListener('click', goToManualDate);
+
+            // Enter key در فیلد سال
+            manualYear.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    goToManualDate();
+                }
+            });
+
+            // --- راه‌اندازی اولیه ---
+            title.textContent = 'در حال بارگذاری...';
+            goToToday();
+
+        })();
+    </script>
 </body>
 </html>

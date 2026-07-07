@@ -336,7 +336,103 @@ body {
     margin-top: 10px;
 }
 
-/* Responsive Design */
+/* ============================================================
+   Searchable Select Styles - NEW SECTION
+   ============================================================ */
+
+.searchable-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.searchable-select-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: 'B Yekan', 'Tahoma', sans-serif;
+    background: #f9f9f9;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    cursor: text;
+}
+
+.searchable-select-input:focus {
+    outline: none;
+    border-color: #3498db;
+    background: #fff;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+}
+
+.searchable-select-input.open {
+    border-radius: 6px 6px 0 0;
+    border-bottom-color: #ddd;
+}
+
+.searchable-select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-top: -1px;
+    display: none;
+}
+
+.searchable-select-dropdown .searchable-option {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+    font-family: 'B Yekan', 'Tahoma', sans-serif;
+    transition: background 0.15s ease;
+}
+
+.searchable-select-dropdown .searchable-option:hover {
+    background: #f0f7ff;
+}
+
+.searchable-select-dropdown .searchable-option.no-result {
+    color: #999;
+    text-align: center;
+    cursor: default;
+}
+
+.searchable-select-dropdown .searchable-option.no-result:hover {
+    background: transparent;
+}
+
+/* اسکرول بار برای dropdown */
+.searchable-select-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.searchable-select-dropdown::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.searchable-select-dropdown::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.searchable-select-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* ============================================================
+   Responsive Design
+   ============================================================ */
+
 @media (max-width: 768px) {
     .navbar-container {
         flex-direction: column;
@@ -359,6 +455,16 @@ body {
     .modal-content {
         width: 95%;
         padding: 30px;
+    }
+
+    .searchable-select-input {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    .searchable-select-dropdown .searchable-option {
+        padding: 8px 12px;
+        font-size: 13px;
     }
 }
 
@@ -409,5 +515,15 @@ body {
     .password-rules ul li {
         padding: 2px 0;
         gap: 6px;
+    }
+
+    .searchable-select-input {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+
+    .searchable-select-dropdown .searchable-option {
+        padding: 6px 10px;
+        font-size: 12px;
     }
 }

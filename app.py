@@ -414,6 +414,12 @@ def register_company():
                 'message': 'شماره ثبت نمی‌تواند خالی باشد'
             }), 400
 
+        if not re.match(r'^\d{3,6}$', registration_number):
+            return jsonify({
+                'success': False,
+                'message': 'شماره ثبت باید عددی بین ۳ تا ۶ رقم باشد'
+            }), 400
+
         # Validate registration date
         reg_date = data.get('registrationDate', {})
         year = reg_date.get('year')
@@ -982,6 +988,27 @@ def internal_error(error):
         'message': 'Internal server error'
     }), 500
 
+
+# ============================================================
+# Registration Centers Routes
+# ============================================================
+
+@app.route('/api/registration-centers', methods=['GET'])
+@require_auth
+def get_registration_centers():
+    """Get list of registration centers"""
+    try:
+        centers = db.get_registration_centers()
+        return jsonify({
+            'success': True,
+            'centers': centers
+        }), 200
+    except Exception as e:
+        print(f"[ERROR] Error getting registration centers: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Internal server error'
+        }), 500
 
 # ============================================================
 # Run Server
